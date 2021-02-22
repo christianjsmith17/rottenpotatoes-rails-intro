@@ -15,9 +15,13 @@ class MoviesController < ApplicationController
       ordering,@date_header = {:release_date => :asc}, 'bg-warning hilite'
     end
     @all_ratings = Movie.all_ratings
-    @selected_ratings = params[:ratings] || session[:ratings] || {}
+    @ratings_to_show = params[:ratings] || session[:ratings] || {}
     
-    @movies = Movie.order(params[:sort])
+    if @ratings_to_show == {}
+      @ratings_to_show = Hash[@all_ratings.map {|rating| [rating, rating]}]
+    end
+    
+    @movies = Movie.where(rating: @ratings_to_show.keys).order(ordering)
   end
 
   def new
