@@ -7,18 +7,28 @@ class MoviesController < ApplicationController
   end
 
   def index
+    session.clear
     sort = params[:sort] || session[:sort]
+    
     case sort
     when 'title'
       ordering,@title_header = {:title => :asc}, 'bg-warning hilite'
     when 'release_date'
       ordering,@date_header = {:release_date => :asc}, 'bg-warning hilite'
     end
+    
     @all_ratings = Movie.all_ratings
     @ratings_to_show = params[:ratings] || session[:ratings] || {}
     
     if @ratings_to_show == {}
-      @ratings_to_show = Hash[@all_ratings.map {|rating| [rating, rating]}]
+      @ratings_to_show = Hash[@all_ratings.map {|rating| [rating, 1]}]
+    end
+    
+    # navigate away from home page (i.e. click on details of a movie)
+    if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+      session[:sort] = sort
+      session[:ratings] = @ratings_to_show
+      redirect_to :sort => sort, :ratings => @ratings_to_show and return
     end
     
     @movies = Movie.where(rating: @ratings_to_show.keys).order(ordering)
