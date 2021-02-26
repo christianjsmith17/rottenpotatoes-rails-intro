@@ -7,7 +7,10 @@ class MoviesController < ApplicationController
   end
 
   def index
-    #session.clear
+    if params[:ratings].nil? and params[:commit] # should ensure that session values are only reset on startup
+    	session.clear
+    end
+    
     sort = params[:sort] || session[:sort]
     
     case sort
